@@ -2,11 +2,9 @@
 title: K8S - TLS with ingress nginx
 date: "2022-04-25"
 tags:
-  - k8s
   - kubernetes
   - ingress-nginx
   - tls
-  - cert-manager
 aliases:
   - k8s-ingress-tls
 ---

@@ -4,7 +4,6 @@ date: "2022-05-01"
 tags:
   - openssl
   - tls
-  - ssl
 aliases:
   - openssl-create-cert
 ---
