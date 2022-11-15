@@ -1,6 +1,6 @@
 baseURL: /
 title: The Blogging of Isaac
-theme: github.com/razonyang/hugo-theme-bootstrap
+theme: hugo-theme-bootstrap
 copyright: 'Copyright © 2021-{year} Isaac Yip. All Rights Reserved.'
 defaultContentLanguage: zh-hk
 hasCJKLanguage: true # Uncomment it if your content contains Chinese/Japanese/Korean Languages.
