@@ -34,7 +34,7 @@ palette: "cyan" # Default palette. Optional. You'll need to clear the browser ca
 
 # color: dark # light, dark or auto. Default to auto.
 
-fullWidth: true # Full width.
+# fullWidth: true # Full width.
 # fixedHeader: false # Turn on/off fixed header.
 
 # dateFormat: Jan 2, 2006
@@ -54,7 +54,7 @@ googleAdsense:
 
 # poweredBy: false # Whether to show powered by.
 
-# readingTime: false # Whether to display the reading time.
+readingTime: false # Whether to display the reading time.
 # postDate: false # Whether to display the post date in the post meta section.
 
 # featuredPostCount: 10 # The number of featured posts shown in sidebar. Turn off by setting it to false.
@@ -67,8 +67,6 @@ googleAdsense:
 taxonomyPostCount: 20 # The number of taxonomy's posts. Turn off by setting it to false.
 countTaxonomyPosts: true # Count posts of taxonomy.
 
-# sidebarTaxonomies: [categories, tags, series] # The order of taxonomies on the sidebar.
-
 # pinnedPost: false # Turn on/off pinned posts.
 pinnedPostCount: 3 # The number of pinned posts.
 
@@ -78,22 +76,24 @@ customJS:
 
 tocWordCount: 1 # TOC is displayed only if the post's word count exceeds this value.
 
-titleCase: true # Capitalized title.
+titleCase: alse # Capitalized title.
 
 viewer: true # Image Viewer
 
 # backgroundImage: ['/images/bg-light.png', '/images/bg-dark.png']
-# rss: home # link the RSS button to homepage all the times.
+rss:  # link the RSS button to homepage all the times.
 
+sidebarTaxonomies: ["tags", "archives"] # The order of taxonomies on the sidebar.
 sidebar:
+  # tags: true # Enable tags widget
   # fixed: true
   # archives: true # Enable archives widget
-  taxonomiesToggle: false # Disable taxonomy toggle
+  # taxonomiesToggle: false # Disable taxonomy toggle
+  taxonomiesToggleArchives: false
   # categories: true # Enable categories widget
-  tags: true # Enable tags widget
   # series: true # Enable series widget
   # authors: true # Enable authors widget
-  # postsToggle: false # Disable posts toggle
+  # postsToggle: true # Disable posts toggle
   # featuredPosts: true # Enable featured posts widget
   # recentPosts: true # Enable featured posts widget
   # collapsed: true # Collapse sidebar widgets by default on small screens.
@@ -194,7 +194,7 @@ search:
     # distance: 100
     # useExtendedSearch: true
 
-#docsearch:
+# docsearch:
   # https://docsearch.algolia.com/docs/api
   # container: ".search-bar" # replace it if necessary, default to '.search-bar'.
   # appId: ""
@@ -202,7 +202,7 @@ search:
   # indexName: ""
   # debug: true
 
-reward:
+# reward:
   # alipay: images/reward/alipay.png
   # wechat: images/reward/wechat.png
   #paypal: images/reward/paypal.png
@@ -212,8 +212,8 @@ reward:
 #share:
   #addThis:  # AddThis pubid.
 
-#actionsPanel:
-  # disabled: true
+actionsPanel:
+  disabled: true
 
 # Comment or remove this settings to disable font size switcher.
 fontSize:
@@ -239,12 +239,12 @@ pwa:
     #   sizes: 144x144
     #   src: /images/icons/icon-144x144.png
 
-contact:
-  endpoint: https://getform.io/f/56041c81-9e03-4c24-b9c5-61238854d4cd # Backend endpoint, remove this line if you're using Netlify.
-  # file: true # Enable file upload
-  # fileField: image # The name of file field.
-  # reCaptcha:
-    # siteKey: ""
+# contact:
+#   endpoint: https://getform.io/f/56041c81-9e03-4c24-b9c5-61238854d4cd # Backend endpoint, remove this line if you're using Netlify.
+#   file: true # Enable file upload
+#   fileField: image # The name of file field.
+#   reCaptcha:
+#     siteKey: ""
 
 repo:
   url: https://github.com/yip102011/yip102011.github.io
@@ -253,14 +253,17 @@ repo:
   # dateFormat: 02/01/2006, 15:04:05 PM
 
 topAppBar:
+  colorToggle: false
+  coloredInDark: false
+  dropdownMenuToggle: false
   social:
     github: yip102011/yip102011.github.io
     # patreon: razonyang
     # paypal: razonyang
-
-#docs:
-  # nav:
-    # expand: true # Expand docs navigations.
+    
+# docs:
+#   nav:
+#     expand: true # Expand docs navigations.
 
 #feeds:
   # content: true
