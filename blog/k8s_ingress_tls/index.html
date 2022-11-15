@@ -1,0 +1,285 @@
+<!doctype html><html class=position-relative itemscope itemtype=http://schema.org/WebPage lang=zh-hk data-bs-theme=auto data-palette=cyan><head><script src=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/assets/init/bundle.min.ba0fcf0d39e187473fcdedf699168abda49b606935974df8983ddb8a159119fb.js integrity="sha256-ug/PDTnhh0c/ze32mRaKvaSbYGk1l034mD3bihWRGfs=" crossorigin=anonymous></script><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>K8S - TLS with ingress nginx - The Blogging of Isaac</title><link rel=icon href="https://razonyang.github.io/images/icons/icon-16x16.png?version=7e89a21660c9ae6d8a8b770e62e0e34a" sizes=16x16><link rel=icon href="https://razonyang.github.io/images/icons/icon-32x32.png?version=7e89a21660c9ae6d8a8b770e62e0e34a" sizes=32x32><link rel=apple-touch-icon href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/favicon_huc1d2ba7c7d6d5aa3e01f2f328b911c53_11507_180x180_resize_box_3.png sizes=180x180 type=image/png><link rel=icon href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/favicon_huc1d2ba7c7d6d5aa3e01f2f328b911c53_11507_150x150_resize_box_3.png sizes=150x150 type=image/png><link rel=icon href="https://razonyang.github.io/images/icons/icon-192x192.png?version=2628663871cc7d25aeacc0f33db9c4e6" sizes=192x192><link rel=mask-icon href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/safari-pinned-tab.svg color=#6f42c1><link rel=icon href="https://razonyang.github.io/hugo-theme-bootstrap-skeleton/images/icons/favicon.ico?version=7e89a21660c9ae6d8a8b770e62e0e34a"><meta name=keywords content><meta name=description content="教你使用 Proxy 跟 HTTPS 的 3 種模式"><meta name=robots content="index, follow"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/k8s_ingress_tls/thumbnail.jpeg"><meta name=twitter:title content="K8S - TLS with ingress nginx"><meta name=twitter:description content="教你使用 Proxy 跟 HTTPS 的 3 種模式"><meta property="og:title" content="K8S - TLS with ingress nginx"><meta property="og:description" content="教你使用 Proxy 跟 HTTPS 的 3 種模式"><meta property="og:type" content="article"><meta property="og:url" content="https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/k8s_ingress_tls/"><meta property="og:image" content="https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/k8s_ingress_tls/thumbnail.jpeg"><meta property="article:section" content="blog"><meta property="article:published_time" content="2022-04-25T00:00:00+00:00"><meta property="article:modified_time" content="2022-11-16T03:45:08+08:00"><meta itemprop=name content="K8S - TLS with ingress nginx"><meta itemprop=description content="教你使用 Proxy 跟 HTTPS 的 3 種模式"><meta itemprop=datePublished content="2022-04-25T00:00:00+00:00"><meta itemprop=dateModified content="2022-11-16T03:45:08+08:00"><meta itemprop=wordCount content="1003"><meta itemprop=image content="https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/k8s_ingress_tls/thumbnail.jpeg"><meta itemprop=keywords content="k8s,kubernetes,ingress-nginx,tls,cert-manager,"><link rel=manifest href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/manifest.json><link data-precache rel=stylesheet href="https://razonyang.github.io/hugo-theme-bootstrap-skeleton/assets/main/bundle.min.94f466085d284c05884bfdfbf678eb4719b57e45f7fad32192b3b7e844c4c8f0.css" integrity="sha256-lPRmCF0oTAWIS/379njrRxm1fkX3+tMhkrO36ETEyPA=" crossorigin=anonymous><link data-precache rel=stylesheet href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/assets/viewer/bundle.min.eb914844636cd41f221f109e99c887bbc3b6b5ffb2af7c664b284cea2d1b54b7.css integrity="sha256-65FIRGNs1B8iHxCemciHu8O2tf+yr3xmSyhM6i0bVLc=" crossorigin=anonymous></head><body><header><nav class="top-app-bar shadow navbar navbar-expand-lg fixed-top"><div class=container><a class="navbar-brand d-flex align-items-center flex-grow-1 flex-lg-grow-0 text-lg-start ms-2 ms-lg-0 mx-auto me-lg-2" href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/><picture><img class=logo alt=Logo src=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/images/logo.webp loading=lazy width=300 height=300>
+</picture>The Blogging of Isaac Yip</a>
+<button class="navbar-toggler order-5" type=button data-bs-toggle=offcanvas data-bs-target=#navbarMenus aria-controls=navbarMenus aria-expanded=false aria-label="Toggle navigation">
+<i class="fas fa-ellipsis-h"></i></button><div class="offcanvas-lg offcanvas-end flex-grow-1" data-bs-scroll=true tabindex=-1 id=navbarMenus aria-labelledby=navbarMenusLabel><div class="offcanvas-header px-4 pb-0"><h5 class=offcanvas-title id=navbarMenusLabel>The Blogging of Isaac</h5><button type=button class="btn-close btn-close-white" data-bs-dismiss=offcanvas data-bs-target=#navbarMenus aria-label=Close></button></div><div class="offcanvas-body p-4 pt-0 p-lg-0"><hr class=d-lg-none><ul class="navbar-nav flex-row flex-wrap align-items-center me-auto"><li class="nav-item col-6 col-lg-auto"><a class="nav-link py-2 px-0 px-lg-2" href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/><i class="fas fa-fw fa-file me-1"></i>博客</a></li><li class="nav-item col-6 col-lg-auto"><a class="nav-link py-2 px-0 px-lg-2" href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/docs/><i class="fas fa-fw fa-file me-1"></i>文檔</a></li></ul><hr class=d-lg-none><form class="search-bar ms-auto my-1" action=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/search/ novalidate><div class="input-group input-group-sm align-items-center"><span class="btn btn-search disabled position-absolute left-0 border-0"><i class="fas fa-fw fa-search fa-lg"></i></span>
+<input class="py-2 form-control rounded search-input" name=q type=search aria-label=Search required></div></form><hr class=d-lg-none><ul class="navbar-nav flex-row flex-wrap align-items-center ms-md-auto"><li class="nav-item py-2 py-lg-1 col-12 col-lg-auto"><nav class="social-links nav justify-content-center flex-row"><a class="nav-link social-link col-6 col-lg-auto p-1" target=_blank href=https://github.com/yip102011/yip102011.github.io title=GitHub rel=me><i class="fa-fw fab fa-github"></i>
+<span class="ms-1 d-lg-none">Github</span></a>
+<a class="nav-link social-link col-6 col-lg-auto p-1" target=_blank href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/index.xml title=RSS rel=me><i class="fas fa-fw fa-rss"></i>
+<span class="ms-1 d-lg-none">RSS</span></a></nav></li><li class="nav-item py-2 py-lg-1 col-12 col-lg-auto"><div class="vr d-none d-lg-flex h-100 mx-lg-2 text-white"></div><hr class="d-lg-none my-2"></li><li class="nav-item dropdown col-6 col-lg-auto"><a class="nav-link px-0 py-2 px-lg-1" href=# id=fontSizeDropdown role=button data-bs-toggle=dropdown aria-expanded=false><i class="fas fa-fw fa-font"></i>
+<span class=d-lg-none>字體大小</span></a><ul class="dropdown-menu dropdown-menu-end" aria-labelledby=fontSizeDropdown><li><button class="font-size-item dropdown-item" data-size=xs>
+特小號</button></li><li><button class="font-size-item dropdown-item" data-size=sm>
+小號</button></li><li><button class="font-size-item dropdown-item active" data-size=md>
+中等</button></li><li><button class="font-size-item dropdown-item" data-size=lg>
+大號</button></li><li><button class="font-size-item dropdown-item" data-size=xl>
+特大號</button></li></ul></li><li class="nav-item dropdown col-6 col-lg-auto"><a class="nav-link px-0 py-2 px-lg-1" href=# id=paletteDropdown role=button data-bs-toggle=dropdown aria-expanded=false><i class="fas fa-fw fa-palette"></i>
+<span class=d-lg-none>配色</span></a><ul class="dropdown-menu dropdown-menu-end px-2" aria-labelledby=paletteDropdown><div class=row><li class="col-4 my-1"><a role=button id=palette-blue aria-label=藍色 class="btn btn-sm w-100 palette text-bg-blue" data-palette=blue></a></li><li class="col-4 my-1"><a role=button id=palette-blue-gray aria-label=藍灰色 class="btn btn-sm w-100 palette text-bg-blue-gray" data-palette=blue-gray></a></li><li class="col-4 my-1"><a role=button id=palette-brown aria-label=棕色 class="btn btn-sm w-100 palette text-bg-brown" data-palette=brown></a></li><li class="col-4 my-1"><a role=button id=palette-cyan aria-label=青色 class="btn btn-sm w-100 palette text-bg-cyan" data-palette=cyan></a></li><li class="col-4 my-1"><a role=button id=palette-green aria-label=綠色 class="btn btn-sm w-100 palette text-bg-green" data-palette=green></a></li><li class="col-4 my-1"><a role=button id=palette-indigo aria-label=靛青色 class="btn btn-sm w-100 palette text-bg-indigo" data-palette=indigo></a></li><li class="col-4 my-1"><a role=button id=palette-orange aria-label=橙色 class="btn btn-sm w-100 palette text-bg-orange" data-palette=orange></a></li><li class="col-4 my-1"><a role=button id=palette-pink aria-label=粉色 class="btn btn-sm w-100 palette text-bg-pink" data-palette=pink></a></li><li class="col-4 my-1"><a role=button id=palette-purple aria-label=紫色 class="btn btn-sm w-100 palette text-bg-purple" data-palette=purple></a></li><li class="col-4 my-1"><a role=button id=palette-red aria-label=紅色 class="btn btn-sm w-100 palette text-bg-red" data-palette=red></a></li><li class="col-4 my-1"><a role=button id=palette-teal aria-label=藍綠色 class="btn btn-sm w-100 palette text-bg-teal" data-palette=teal></a></li><li class="col-4 my-1"><a role=button id=palette-yellow aria-label=黃色 class="btn btn-sm w-100 palette text-bg-yellow" data-palette=yellow></a></li></div></ul></li></ul></div></div></div></nav></header><main class=container><div class="row content"><noscript><div class="alert alert-danger" role=alert>你的瀏覽器不支持 JavaScript。</div></noscript><div class=col-lg-8><div class=container><nav class="row card component" aria-label=breadcrumb><div class="card-body pb-0"><ol class=breadcrumb><li class="breadcrumb-item text-surface"><a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/>主頁</a></li><li class="breadcrumb-item text-surface"><a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/>博客</a></li><li class="breadcrumb-item active">K8S - TLS With Ingress Nginx</li></ol></div></nav><div class="post-panel-wrapper position-sticky"><div class="d-flex flex-column component rounded post-panel position-absolute border"><a class="action action-panel-toggler" role=button title="Panel toggler"><i class="fas fa-fw fa-chevron-circle-down"></i></a>
+<a id=sidebarToggler class="action action-sidebar-toggler d-none d-lg-block" role=button title="Sidebar toggler"><i class="fas fa-fw fa-expand-alt" data-fa-transform=rotate-45></i></a>
+<a class="action action-toc" href=#postTOC aria-controls="Table of contents" role=button title="Table of contents"><i class="fas fa-fw fa-list-alt"></i></a>
+<a class="action action-post-comments" href=#post-comments role=button aria-label=Comments title=Comments><i class="fas fa-fw fa-comments"></i></a></div></div><article class="row card component mb-4 post"><div class=card-header><h1 class="card-title post-title my-2">K8S - TLS With Ingress Nginx</h1></div><div class=card-body><div class="post-meta mb-3"><span class="post-date me-1 mb-1" title="創建於 2022-04-25 00:00:00 +0000 UTC，更新於 2022-11-15 19:45:08 +0000 UTC。">2022-04-25</span><a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/tags/cert-manager/ class="btn btn-sm btn-secondary mb-1 me-2 py-0 pe-1 post-taxonomy post-taxonomy-sm post-tag">Cert-Manager</a><a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/tags/ingress-nginx/ class="btn btn-sm btn-secondary mb-1 me-2 py-0 pe-1 post-taxonomy post-taxonomy-sm post-tag">Ingress-Nginx</a><a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/tags/k8s/ class="btn btn-sm btn-secondary mb-1 me-2 py-0 pe-1 post-taxonomy post-taxonomy-sm post-tag">K8s</a><a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/tags/kubernetes/ class="btn btn-sm btn-secondary mb-1 me-2 py-0 pe-1 post-taxonomy post-taxonomy-sm post-tag">Kubernetes</a><a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/tags/tls/ class="btn btn-sm btn-secondary mb-1 me-2 py-0 pe-1 post-taxonomy post-taxonomy-sm post-tag">Tls</a></div><div id=postTOC class="mt-2 mb-4 d-block d-lg-none"><h2 class="text-surface mb-3">目錄</h2><div id=post-toc-container></div></div><div class="post-content mb-3" data-bs-spy=scroll data-bs-target=#TableOfContents tabindex=0><div id=post-content-body><p>教你使用 Proxy 跟 HTTPS 的 3 種模式</p><h1 id=如何在-k8s-設定-https data-numberify>如何在 K8S 設定 HTTPS<a class="anchor ms-1 d-none" href=#如何在-k8s-設定-https>#</a></h1><h2 id=使用-proxy-跟-https-的-3-種模式 data-numberify>使用 Proxy 跟 HTTPS 的 3 種模式<a class="anchor ms-1 d-none" href=#使用-proxy-跟-https-的-3-種模式>#</a></h2><h3 id=tls-termination data-numberify>TLS termination<a class="anchor ms-1 d-none" href=#tls-termination>#</a></h3><p>nginx 把 HTTP 解密後以明文方或傳送到後方。</p><ul><li>設定方便，只需設定 nginx</li><li>安全性較低
+<picture><img class=img-fluid alt=Img src=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/k8s_ingress_tls/01277271.png loading=lazy width=679 height=194></picture></li></ul><h3 id=tls-passthrough data-numberify>TLS passthrough<a class="anchor ms-1 d-none" href=#tls-passthrough>#</a></h3><p>nginx 不進行解密，用 TCP protocol 傳送資料到 API。</p><ul><li>由於 nginx 不解密，部份功能無法使用，例如修改 HTTP Header，把內容傳送到 log 系統等等</li><li>安全性比 TLS termination 高
+<picture><img class=img-fluid alt=Img src=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/k8s_ingress_tls/68606a2b.png loading=lazy width=682 height=194></picture></li></ul><h3 id=tls-termination--tls-backend data-numberify>TLS termination + TLS backend<a class="anchor ms-1 d-none" href=#tls-termination--tls-backend>#</a></h3><p>nginx 把 HTTP 解密後，再使用 TLS 加密才傳送到後方，兩段 HTTPS。</p><ul><li>安全性比 TLS termination 高，比 TLS passthrough 低</li><li>nginx 可以進行解密，並使用修改 HTTP Header，log 等功能</li><li>設定繁瑣
+<picture><img class=img-fluid alt=Img src=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/k8s_ingress_tls/c749fde9.png loading=lazy width=681 height=291></picture></li></ul><h2 id=建立-namespace data-numberify>建立 Namespace<a class="anchor ms-1 d-none" href=#建立-namespace>#</a></h2><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl create namespace sandbox
+</span></span><span class=line><span class=cl>kubectl config set-context --current --namespace<span class=o>=</span>sandbox
+</span></span></code></pre></div><h2 id=準備憑證-prepare-certificate data-numberify>準備憑證 Prepare Certificate<a class="anchor ms-1 d-none" href=#準備憑證-prepare-certificate>#</a></h2><ul><li>安裝 cert manager</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.8.0/cert-manager.yaml
+</span></span></code></pre></div><ul><li>建立 Self Sign Root CA</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt;EOF | kubectl apply -f -
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: cert-manager.io/v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: Issuer
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  namespace: sandbox
+</span></span></span><span class=line><span class=cl><span class=s>  name: selfsigned-issuer
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  selfSigned: {}
+</span></span></span><span class=line><span class=cl><span class=s>---
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: cert-manager.io/v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: Certificate
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  namespace: sandbox
+</span></span></span><span class=line><span class=cl><span class=s>  name: root-ca
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  isCA: true
+</span></span></span><span class=line><span class=cl><span class=s>  commonName: Root CA
+</span></span></span><span class=line><span class=cl><span class=s>  secretName: root-ca
+</span></span></span><span class=line><span class=cl><span class=s>  usages:
+</span></span></span><span class=line><span class=cl><span class=s>    - signing
+</span></span></span><span class=line><span class=cl><span class=s>    - cert sign
+</span></span></span><span class=line><span class=cl><span class=s>    - crl sign
+</span></span></span><span class=line><span class=cl><span class=s>  privateKey:
+</span></span></span><span class=line><span class=cl><span class=s>    encoding: PKCS8
+</span></span></span><span class=line><span class=cl><span class=s>    algorithm: ECDSA
+</span></span></span><span class=line><span class=cl><span class=s>    size: 256
+</span></span></span><span class=line><span class=cl><span class=s>  issuerRef:
+</span></span></span><span class=line><span class=cl><span class=s>    name: selfsigned-issuer
+</span></span></span><span class=line><span class=cl><span class=s>---
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: cert-manager.io/v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: Issuer
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  namespace: sandbox
+</span></span></span><span class=line><span class=cl><span class=s>  name: root-ca-issuer
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  ca:
+</span></span></span><span class=line><span class=cl><span class=s>    secretName: root-ca
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span></code></pre></div><ul><li>建立 Intermediate CA</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt;EOF | kubectl apply -f -
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: cert-manager.io/v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: Certificate
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  namespace: sandbox
+</span></span></span><span class=line><span class=cl><span class=s>  name: inter-ca
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  isCA: true
+</span></span></span><span class=line><span class=cl><span class=s>  commonName: Intermediate CA
+</span></span></span><span class=line><span class=cl><span class=s>  secretName: inter-ca
+</span></span></span><span class=line><span class=cl><span class=s>  usages:
+</span></span></span><span class=line><span class=cl><span class=s>    - signing
+</span></span></span><span class=line><span class=cl><span class=s>    - cert sign
+</span></span></span><span class=line><span class=cl><span class=s>    - crl sign
+</span></span></span><span class=line><span class=cl><span class=s>  privateKey:
+</span></span></span><span class=line><span class=cl><span class=s>    encoding: PKCS8
+</span></span></span><span class=line><span class=cl><span class=s>    algorithm: ECDSA
+</span></span></span><span class=line><span class=cl><span class=s>    size: 256
+</span></span></span><span class=line><span class=cl><span class=s>  issuerRef:
+</span></span></span><span class=line><span class=cl><span class=s>    name: root-ca-issuer
+</span></span></span><span class=line><span class=cl><span class=s>---
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: cert-manager.io/v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: Issuer
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  namespace: sandbox
+</span></span></span><span class=line><span class=cl><span class=s>  name: inter-ca-issuer
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  ca:
+</span></span></span><span class=line><span class=cl><span class=s>    secretName: inter-ca
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span></code></pre></div><ul><li>建立 Nginx 伺服器憑證 Nginx Server Cert</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt;EOF | kubectl apply -f -
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: cert-manager.io/v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: Certificate
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  namespace: sandbox
+</span></span></span><span class=line><span class=cl><span class=s>  name: nginx-server-cert
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  isCA: false
+</span></span></span><span class=line><span class=cl><span class=s>  secretName: nginx-server-cert
+</span></span></span><span class=line><span class=cl><span class=s>  commonName: Nginx Server Cert
+</span></span></span><span class=line><span class=cl><span class=s>  dnsNames:
+</span></span></span><span class=line><span class=cl><span class=s>    - localhost
+</span></span></span><span class=line><span class=cl><span class=s>    - test-nginx-server.com
+</span></span></span><span class=line><span class=cl><span class=s>    - test-nginx-api-server.com
+</span></span></span><span class=line><span class=cl><span class=s>  usages:
+</span></span></span><span class=line><span class=cl><span class=s>    - digital signature
+</span></span></span><span class=line><span class=cl><span class=s>    - key encipherment
+</span></span></span><span class=line><span class=cl><span class=s>    - server auth
+</span></span></span><span class=line><span class=cl><span class=s>  privateKey:
+</span></span></span><span class=line><span class=cl><span class=s>    encoding: PKCS8
+</span></span></span><span class=line><span class=cl><span class=s>    algorithm: ECDSA
+</span></span></span><span class=line><span class=cl><span class=s>    size: 256
+</span></span></span><span class=line><span class=cl><span class=s>  issuerRef:
+</span></span></span><span class=line><span class=cl><span class=s>    name: inter-ca-issuer
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span></code></pre></div><ul><li>建立 API 伺服器憑證 API Server Cert</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt;EOF | kubectl apply -f -
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: cert-manager.io/v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: Certificate
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  namespace: sandbox
+</span></span></span><span class=line><span class=cl><span class=s>  name: api-server-cert
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  isCA: false
+</span></span></span><span class=line><span class=cl><span class=s>  secretName: api-server-cert
+</span></span></span><span class=line><span class=cl><span class=s>  commonName: API Server Cert
+</span></span></span><span class=line><span class=cl><span class=s>  dnsNames:
+</span></span></span><span class=line><span class=cl><span class=s>    - localhost
+</span></span></span><span class=line><span class=cl><span class=s>    - test-api-server.com
+</span></span></span><span class=line><span class=cl><span class=s>  usages:
+</span></span></span><span class=line><span class=cl><span class=s>    - digital signature
+</span></span></span><span class=line><span class=cl><span class=s>    - key encipherment
+</span></span></span><span class=line><span class=cl><span class=s>    - server auth
+</span></span></span><span class=line><span class=cl><span class=s>  privateKey:
+</span></span></span><span class=line><span class=cl><span class=s>    encoding: PKCS8
+</span></span></span><span class=line><span class=cl><span class=s>    algorithm: ECDSA
+</span></span></span><span class=line><span class=cl><span class=s>    size: 256
+</span></span></span><span class=line><span class=cl><span class=s>  issuerRef:
+</span></span></span><span class=line><span class=cl><span class=s>    name: inter-ca-issuer
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span></code></pre></div><ul><li>可以看到已經建立了 4 個 tls secret</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl get secret <span class=p>|</span> grep tls
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>api-server-cert       kubernetes.io/tls
+</span></span><span class=line><span class=cl>inter-ca              kubernetes.io/tls
+</span></span><span class=line><span class=cl>nginx-server-cert     kubernetes.io/tls
+</span></span><span class=line><span class=cl>root-ca               kubernetes.io/tls
+</span></span></code></pre></div><ul><li>將 Root CA 加入信任名單</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># download ca cert from k8s secret</span>
+</span></span><span class=line><span class=cl>kubectl get secret root-ca -o go-template<span class=o>=</span><span class=s1>&#39;{{index .data &#34;ca.crt&#34;|base64decode}}&#39;</span> &gt; root_ca.crt
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># add to trusted list</span>
+</span></span><span class=line><span class=cl>sudo cp root_ca.crt /usr/local/share/ca-certificates
+</span></span><span class=line><span class=cl>sudo update-ca-certificates
+</span></span></code></pre></div><h2 id=部署-api-service-and-nginx data-numberify>部署 api service and nginx<a class="anchor ms-1 d-none" href=#部署-api-service-and-nginx>#</a></h2><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># deploy api service</span>
+</span></span><span class=line><span class=cl>kubectl apply -f https://raw.githubusercontent.com/yip102011/isaac_test_api/master/k8s_deploy/k8s_deploy.yaml
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># deploy nginx</span>
+</span></span><span class=line><span class=cl>kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.2.0/deploy/static/provider/cloud/deploy.yaml
+</span></span></code></pre></div><h2 id=部署-ingress-tls-termination data-numberify>部署 Ingress (TLS termination)<a class="anchor ms-1 d-none" href=#部署-ingress-tls-termination>#</a></h2><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt;EOF | kubectl apply -f -
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: networking.k8s.io/v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: Ingress
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: tls-termination-ingress
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  ingressClassName: nginx
+</span></span></span><span class=line><span class=cl><span class=s>  tls:
+</span></span></span><span class=line><span class=cl><span class=s>    - hosts:
+</span></span></span><span class=line><span class=cl><span class=s>      - test-nginx-server.com
+</span></span></span><span class=line><span class=cl><span class=s>      secretName: nginx-server-cert
+</span></span></span><span class=line><span class=cl><span class=s>  rules:
+</span></span></span><span class=line><span class=cl><span class=s>  - host: test-nginx-server.com
+</span></span></span><span class=line><span class=cl><span class=s>    http:
+</span></span></span><span class=line><span class=cl><span class=s>      paths:
+</span></span></span><span class=line><span class=cl><span class=s>      - path: /
+</span></span></span><span class=line><span class=cl><span class=s>        pathType: Prefix
+</span></span></span><span class=line><span class=cl><span class=s>        backend:
+</span></span></span><span class=line><span class=cl><span class=s>          service:
+</span></span></span><span class=line><span class=cl><span class=s>            name: test-api
+</span></span></span><span class=line><span class=cl><span class=s>            port:
+</span></span></span><span class=line><span class=cl><span class=s>              number: 80
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span></code></pre></div><ul><li>查看連接憑證</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 查看連接憑證</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=p>|</span> openssl s_client -servername test-nginx-server.com -connect 127.0.0.1:443 <span class=p>|</span> grep CN
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看憑證詳細資料</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=p>|</span> openssl s_client -servername test-nginx-server.com -connect 127.0.0.1:443  <span class=p>|</span> openssl x509 -inform pem -noout -text
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 可以看到已經在使用 nginx server cert</span>
+</span></span></code></pre></div><ul><li>訪問 API</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>curl --resolve test-nginx-server.com:127.0.0.1 https://test-nginx-server.com/hello
+</span></span></code></pre></div><blockquote><p>Hello World!</p></blockquote><h2 id=部署-ingress-tls-passthrough data-numberify>部署 Ingress (TLS passthrough)<a class="anchor ms-1 d-none" href=#部署-ingress-tls-passthrough>#</a></h2><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 增加 --enable-ssl-passthrough 到 container args</span>
+</span></span><span class=line><span class=cl>kubectl patch deployments.apps ingress-nginx-controller -n ingress-nginx --type<span class=o>=</span>json -p<span class=o>=</span><span class=s1>&#39;[{&#34;op&#34;: &#34;add&#34;, &#34;path&#34;: &#34;/spec/template/spec/containers/0/args/-&#34;, &#34;value&#34;: &#34;--enable-ssl-passthrough&#34; }]&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 注意這次增加了 annotations</span>
+</span></span><span class=line><span class=cl><span class=c1># host 改成 test-api-server.com</span>
+</span></span><span class=line><span class=cl><span class=c1># 後台使用 443 連接 API</span>
+</span></span><span class=line><span class=cl>cat <span class=s>&lt;&lt;EOF | kubectl apply -f -
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: networking.k8s.io/v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: Ingress
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: tls-passthrough-ingress
+</span></span></span><span class=line><span class=cl><span class=s>  annotations:
+</span></span></span><span class=line><span class=cl><span class=s>      nginx.ingress.kubernetes.io/ssl-passthrough: &#34;true&#34;
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  ingressClassName: nginx
+</span></span></span><span class=line><span class=cl><span class=s>  rules:
+</span></span></span><span class=line><span class=cl><span class=s>  - host: test-api-server.com
+</span></span></span><span class=line><span class=cl><span class=s>    http:
+</span></span></span><span class=line><span class=cl><span class=s>      paths:
+</span></span></span><span class=line><span class=cl><span class=s>      - path: /
+</span></span></span><span class=line><span class=cl><span class=s>        pathType: Prefix
+</span></span></span><span class=line><span class=cl><span class=s>        backend:
+</span></span></span><span class=line><span class=cl><span class=s>          service:
+</span></span></span><span class=line><span class=cl><span class=s>            name: test-api
+</span></span></span><span class=line><span class=cl><span class=s>            port:
+</span></span></span><span class=line><span class=cl><span class=s>              number: 443
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span></code></pre></div><ul><li>查看連接憑證</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 查看連接憑證</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=p>|</span> openssl s_client -servername test-api-server.com -connect 127.0.0.1:443 <span class=p>|</span> grep CN
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看憑證詳細資料</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=p>|</span> openssl s_client -servername test-api-server.com -connect 127.0.0.1:443  <span class=p>|</span> openssl x509 -inform pem -noout -text
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 可以看到已經在使用 API server cert</span>
+</span></span></code></pre></div><ul><li>訪問 API</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>curl --resolve test-api-server.com:127.0.0.1 https://test-nginx-server.com/hello
+</span></span></code></pre></div><blockquote><p>Hello World!</p></blockquote><h2 id=部署-ingress-tls-termination--tls-backend data-numberify>部署 Ingress (TLS termination + TLS backend)<a class="anchor ms-1 d-none" href=#部署-ingress-tls-termination--tls-backend>#</a></h2><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt;EOF | kubectl apply -f -
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: networking.k8s.io/v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: Ingress
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: tls-termination-tls-backend-ingress
+</span></span></span><span class=line><span class=cl><span class=s>  annotations:
+</span></span></span><span class=line><span class=cl><span class=s>    nginx.ingress.kubernetes.io/backend-protocol: &#34;HTTPS&#34;
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  ingressClassName: nginx
+</span></span></span><span class=line><span class=cl><span class=s>  tls:
+</span></span></span><span class=line><span class=cl><span class=s>    - hosts:
+</span></span></span><span class=line><span class=cl><span class=s>      - test-nginx-api-server.com
+</span></span></span><span class=line><span class=cl><span class=s>      secretName: nginx-server-cert
+</span></span></span><span class=line><span class=cl><span class=s>  rules:
+</span></span></span><span class=line><span class=cl><span class=s>  - host: test-nginx-api-server.com
+</span></span></span><span class=line><span class=cl><span class=s>    http:
+</span></span></span><span class=line><span class=cl><span class=s>      paths:
+</span></span></span><span class=line><span class=cl><span class=s>      - path: /
+</span></span></span><span class=line><span class=cl><span class=s>        pathType: Prefix
+</span></span></span><span class=line><span class=cl><span class=s>        backend:
+</span></span></span><span class=line><span class=cl><span class=s>          service:
+</span></span></span><span class=line><span class=cl><span class=s>            name: test-api
+</span></span></span><span class=line><span class=cl><span class=s>            port:
+</span></span></span><span class=line><span class=cl><span class=s>              number: 443
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span></code></pre></div><ul><li>查看連接憑證</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 查看連接憑證</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=p>|</span> openssl s_client -servername test-nginx-api-server.com -connect 127.0.0.1:443 <span class=p>|</span> grep CN
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看憑證詳細資料</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=p>|</span> openssl s_client -servername test-nginx-api-server.com -connect 127.0.0.1:443  <span class=p>|</span> openssl x509 -inform pem -noout -text
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 可以看到在使用 Nginx server cert，但後台也會用 TLS 連接API</span>
+</span></span></code></pre></div><ul><li>訪問 API</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>curl --resolve test-nginx-api-server.com:127.0.0.1 https://test-nginx-server.com/hello
+</span></span></code></pre></div><blockquote><p>Hello World!</p></blockquote><h2 id=參考文件 data-numberify>參考文件<a class="anchor ms-1 d-none" href=#參考文件>#</a></h2><ul><li><a href=https://cert-manager.io/docs/installation/ target=_blank rel="noopener noreferrer">https://cert-manager.io/docs/installation/<i class="fas fa-external-link-square-alt ms-1"></i></a></li></ul></div></div></div><div class=card-footer><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-down post-prev-icon me-1" data-fa-transform=rotate-90></i>
+<a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/k8s_ingress_installation/>K8S - 安裝 Ingress Nginx</a></div><div class="post-nav post-next"><a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/openssl_create_cert/>OpenSSL - 使用 Openssl 生成 TLS 憑證</a>
+<i class="fas fa-fw fa-chevron-down post-next-icon ms-1" data-fa-transform=rotate-270></i></div></div></div></article><section class="related-posts row card component"><div class=card-header><h2 class="card-title fs-4 my-2 text-surface">相關文章</h2></div><div class=card-body><ul class="post-list list-unstyled"><li class="mb-3 border-bottom"><a class=post-title href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/k8s_ingress_installation/>K8S - 安裝 Ingress Nginx</a>
+<span class="post-meta post-date float-end">2021-10-31</span><div class="post-summary my-3"><p>如何安裝 ingress-nginx</p><div><a class="btn btn-sm btn-outline-primary btn-read-more" href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/k8s_ingress_installation/>閱讀更多</a></div></div></li></ul></div></section><div class="card component row post-comments" id=post-comments><div class=card-header><h2 class="card-title my-2 fs-4 text-surface">評論</h2></div><div class=card-body><script src=https://utteranc.es/client.js repo=yip102011/yip102011.github.io issue-term=pathname label=comment theme=github-light crossorigin=anonymous async></script></div></div></div></div><aside class="col-lg-4 sidebar d-flex"><div class="container d-flex flex-column"><div class="accordion profile"><div class="accordion-item card row text-center component"><div class="accordion-header card-header border-0" id=profile-header><a class="accordion-button d-lg-none mb-2 shadow-none p-0 bg-transparent text-surface" type=button data-bs-toggle=collapse data-bs-target=#profile aria-expanded=true aria-controls=profile>Profile</a></div><div class="card-body collapse accordion-collapse accordion-body d-lg-block show" id=profile aria-labelledby=profile-header><div class="col-12 d-flex align-items-center justify-content-center"><picture><img class="profile-avatar rounded-circle" alt="Isaac Yip" src=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/images/profile.webp loading=lazy data-viewer-invisible width=300 height=300></picture></div><div class="col-12 profile-meta"><div class="profile-name fw-fold fs-lg">Isaac Yip</div><div class=profile-bio>Software Engineer</div><div class=profile-location><i class="fas fa-fw fa-map-marker-alt"></i>Hong Kong</div><div class="profile-about text-primary"><i class="fas fa-fw fa-user"></i><a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/about/>About</a></div></div><nav class="social-links nav justify-content-center mt-1 justify-content-around"><a class="nav-link social-link" target=_blank href=https://github.com/yip102011/yip102011.github.io title=GitHub rel=me><i class="fa-fw fa-2x fab fa-github"></i></a></nav></div></div></div><div class="accordion taxonomies-toggle"><section class="row card component accordion-item"><div class="accordion-header card-header border-0"><a class="accordion-button d-lg-none mb-1 shadow-none p-0 bg-transparent" type=button data-bs-toggle=collapse data-bs-target=#taxonomies-toggle aria-expanded=true aria-controls=taxonomies-toggle>Taxonomies</a></div><div class="card-body collapse accordion-collapse accordion-body d-lg-block show" id=taxonomies-toggle><ul class="nav nav-pills nav-fill" id=myTab role=tablist><li class=nav-item role=presentation><button class="nav-link active" id=taxonomyTagsTab data-bs-toggle=tab data-bs-target=#taxonomyTags type=button role=tab aria-controls=標籤 aria-selected=true>
+標籤</button></li></ul><div class="tab-content mt-3"><div class="tab-pane active" id=taxonomyTags role=tabpanel aria-labelledby=taxonomyTagsTab tabindex=0><a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/tags/ingress-nginx/ class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title=ingress-nginx>ingress-nginx
+<span class="badge badge-sm text-secondary bg-white ms-1">2</span></a>
+<a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/tags/k8s/ class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title=k8s>k8s
+<span class="badge badge-sm text-secondary bg-white ms-1">2</span></a>
+<a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/tags/kubernetes/ class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title=kubernetes>kubernetes
+<span class="badge badge-sm text-secondary bg-white ms-1">2</span></a>
+<a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/tags/tls/ class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title=tls>tls
+<span class="badge badge-sm text-secondary bg-white ms-1">2</span></a>
+<a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/tags/cert-manager/ class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title=cert-manager>cert-manager
+<span class="badge badge-sm text-secondary bg-white ms-1">1</span></a>
+<a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/tags/linux/ class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title=linux>linux
+<span class="badge badge-sm text-secondary bg-white ms-1">1</span></a>
+<a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/tags/openssl/ class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title=openssl>openssl
+<span class="badge badge-sm text-secondary bg-white ms-1">1</span></a>
+<a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/tags/ssh/ class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title=ssh>ssh
+<span class="badge badge-sm text-secondary bg-white ms-1">1</span></a>
+<a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/tags/ssl/ class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title=ssl>ssl
+<span class="badge badge-sm text-secondary bg-white ms-1">1</span></a>
+<a href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/tags/terminal/ class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title=terminal>terminal
+<span class="badge badge-sm text-secondary bg-white ms-1">1</span></a></div></div></div></section></div><div class="accordion posts-toggle"><section class="row card component accordion-item"><div class="accordion-header card-header border-0"><a class="accordion-button d-lg-none mb-1 shadow-none p-0 bg-transparent" type=button data-bs-toggle=collapse data-bs-target=#posts-toggle aria-expanded=true aria-controls=posts-toggle>文章</a></div><div class="card-body collapse accordion-collapse accordion-body d-lg-block show" id=posts-toggle><ul class="nav nav-pills nav-fill" id=myTab role=tablist><li class=nav-item role=presentation><button class="nav-link active" id=recent-posts-tab data-bs-toggle=tab data-bs-target=#recent-posts type=button role=tab aria-controls=recent-posts aria-selected=true>
+最近文章</button></li></ul><div class="tab-content mt-3"><div class="tab-pane active" id=recent-posts role=tabpanel aria-labelledby=recent-posts-tab tabindex=0><ul class="post-list list-unstyled ms-1"><li class=mb-2><div class=d-flex><div class="flex-grow-1 d-flex flex-column h-auto justify-content-center"><a class=post-title href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/ssh_login_by_key/>SSH - 使用私錀登入</a><div class="post-meta mt-2"><span class=post-date>2022-10-03</span></div></div></div></li><li class=mb-2><div class=d-flex><div class="flex-shrink-0 d-flex justify-content-center align-items-center" style=max-width:100px><picture><source srcset=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/openssl_create_cert/thumbnail_hub6c4f78935da036f40ac595842e2051c_19420_500x0_resize_box_3.png media="(max-width: 576px)" height=113 width=500><img class=img-fluid height=41 width=180 alt=thumbnail.png src=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/openssl_create_cert/thumbnail_hub6c4f78935da036f40ac595842e2051c_19420_180x0_resize_box_3.png data-src=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/openssl_create_cert/thumbnail.png loading=lazy></picture></div><div class="flex-grow-1 d-flex flex-column h-auto justify-content-center ms-3"><a class=post-title href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/openssl_create_cert/>OpenSSL - 使用 Openssl 生成 TLS 憑證</a><div class="post-meta mt-2"><span class=post-date>2022-05-01</span></div></div></div></li><li class=mb-2><div class=d-flex><div class="flex-shrink-0 d-flex justify-content-center align-items-center" style=max-width:100px><picture><source srcset=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/k8s_ingress_tls/thumbnail_hue56bd63f66b9ae2896db7005e752546c_31952_500x0_resize_q75_box.jpeg media="(max-width: 576px)" height=375 width=500><img class=img-fluid height=135 width=180 alt=thumbnail.jpeg src=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/k8s_ingress_tls/thumbnail_hue56bd63f66b9ae2896db7005e752546c_31952_180x0_resize_q75_box.jpeg data-src=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/k8s_ingress_tls/thumbnail.jpeg loading=lazy></picture></div><div class="flex-grow-1 d-flex flex-column h-auto justify-content-center ms-3"><a class=post-title href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/k8s_ingress_tls/>K8S - TLS With Ingress Nginx</a><div class="post-meta mt-2"><span class=post-date>2022-04-25</span></div></div></div></li><li class=mb-2><div class=d-flex><div class="flex-shrink-0 d-flex justify-content-center align-items-center" style=max-width:100px><picture><source srcset=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/k8s_ingress_installation/thumbnail_hue56bd63f66b9ae2896db7005e752546c_31952_500x0_resize_q75_box.jpeg media="(max-width: 576px)" height=375 width=500><img class=img-fluid height=135 width=180 alt=thumbnail.jpeg src=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/k8s_ingress_installation/thumbnail_hue56bd63f66b9ae2896db7005e752546c_31952_180x0_resize_q75_box.jpeg data-src=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/k8s_ingress_installation/thumbnail.jpeg loading=lazy></picture></div><div class="flex-grow-1 d-flex flex-column h-auto justify-content-center ms-3"><a class=post-title href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/blog/k8s_ingress_installation/>K8S - 安裝 Ingress Nginx</a><div class="post-meta mt-2"><span class=post-date>2021-10-31</span></div></div></div></li></ul></div></div></div></section></div><div class="accordion post-toc d-none d-lg-block"><div class="accordion-item row mb-4 card component" id=postTOC><div class="card-header accordion-header"><h2 class="card-title fs-4 my-2 text-surface d-none d-lg-block">目錄</h2><a class="accordion-button d-lg-none mb-1 collapsed shadow-none p-0 bg-transparent" type=button data-bs-toggle=collapse data-bs-target=#post-toc aria-expanded=false aria-controls=post-toc>目錄</a></div><div class="card-body collapse accordion-collapse accordion-body d-lg-block" id=post-toc aria-labelledby=post-toc-header><nav id=TableOfContents><ul><li><a href=#使用-proxy-跟-https-的-3-種模式>使用 Proxy 跟 HTTPS 的 3 種模式</a><ul><li><a href=#tls-termination>TLS termination</a></li><li><a href=#tls-passthrough>TLS passthrough</a></li><li><a href=#tls-termination--tls-backend>TLS termination + TLS backend</a></li></ul></li><li><a href=#建立-namespace>建立 Namespace</a></li><li><a href=#準備憑證-prepare-certificate>準備憑證 Prepare Certificate</a></li><li><a href=#部署-api-service-and-nginx>部署 api service and nginx</a></li><li><a href=#部署-ingress-tls-termination>部署 Ingress (TLS termination)</a></li><li><a href=#部署-ingress-tls-passthrough>部署 Ingress (TLS passthrough)</a></li><li><a href=#部署-ingress-tls-termination--tls-backend>部署 Ingress (TLS termination + TLS backend)</a></li><li><a href=#參考文件>參考文件</a></li></ul></nav></div></div></div></div></aside></div></main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href=mailto:yip102011@gmail.com title=電子郵箱><i class="fas fa-fw fa-2x fa-envelope"></i></a>
+<a class="nav-link social-link" target=_blank href=https://github.com/yip102011 title=GitHub rel=me><i class="fa-fw fa-2x fab fa-github"></i></a>
+<a class="nav-link social-link" target=_blank href=https://linkedin.com/in/in/isaac-yip-1bb738b8/ title=領英 rel=me><i class="fa-fw fa-2x fab fa-linkedin-in"></i></a>
+<a class="nav-link social-link" target=_blank href=https://stackoverflow.com/users/2854252 title="Stack Overflow" rel=me><i class="fa-fw fa-2x fab fa-stack-overflow"></i></a>
+<a class="nav-link social-link" target=_blank href=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/index.xml title=RSS rel=me><i class="fas fa-fw fa-2x fa-rss"></i></a></nav><div class="copyright mb-2">Copyright © 2021-2022 Isaac Yip. All Rights Reserved.</div><div class="powered-by mb-2">Powered by <a class=text-primary href=https://gohugo.io target=_blank rel="noopener noreferrer">Hugo</a> and the <a class=text-primary href=https://github.com/razonyang/hugo-theme-bootstrap target=_blank rel="noopener noreferrer">HBS</a> theme.</div></footer><script data-precache src=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/assets/main/bundle.min.e0346a7d971e6d13fbfb3287b64c98d378350453ec313a3ecb6124a9fe176a35.js integrity="sha256-4DRqfZcebRP7+zKHtkyY03g1BFPsMTo+y2Ekqf4XajU=" crossorigin=anonymous defer></script><script data-precache src=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/assets/icons/bundle.min.e5d84ac25ba4a5623f11bc93036f2fdb97ab3b721117bf2e1567248efa103161.js integrity="sha256-5dhKwlukpWI/EbyTA28v25erO3IRF78uFWckjvoQMWE=" crossorigin=anonymous defer></script>
+<script data-precache src=https://razonyang.github.io/hugo-theme-bootstrap-skeleton/assets/viewer/bundle.min.e5a7213f2100ce0c5c22bd9f113527cd503672ffe57b00e9d6bf5f2abb0d86b2.js integrity="sha256-5achPyEAzgxcIr2fETUnzVA2cv/lewDp1r9fKrsNhrI=" crossorigin=anonymous defer></script><script>"serviceWorker"in navigator&&window.addEventListener("load",()=>{navigator.serviceWorker.register("https://razonyang.github.io/hugo-theme-bootstrap-skeleton/service-worker.min.js").then(function(e){console.log("Successfully registered service worker",e)}).catch(function(e){console.warn("Error whilst registering service worker",e)})})</script></body></html>
