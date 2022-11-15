@@ -1,7 +1,7 @@
 baseURL: /
 title: The Blogging of Isaac
 theme: hugo-theme-bootstrap
-copyright: 'Copyright © 2021-{year} Isaac Yip. All Rights Reserved.'
+copyright: "Copyright © 2021-{year} Isaac Yip. All Rights Reserved."
 defaultContentLanguage: zh-hk
 hasCJKLanguage: true # Uncomment it if your content contains Chinese/Japanese/Korean Languages.
 # defaultContentLanguageInSubdir: true
@@ -21,16 +21,15 @@ blackfriday:
   hrefTargetBlank: true
 
 taxonomies:
-  category: categories
-  series: series
   tag: tags
-  authors: authors
+  # category: categories
+  # series: series
+  # authors: authors
 
 build:
   writeStats: true
-
-permalinks:
-  news: /news/:year/:month/:title/
+# permalinks:
+#   news: /news/:year/:month/:title/
 
 # module:
-  # proxy: https://goproxy.cn
+#   proxy: https://goproxy.cn
