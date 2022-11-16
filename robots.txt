@@ -1,2 +1,2 @@
 User-agent: *
-Sitemap: https://razonyang.github.io/hugo-theme-bootstrap-skeleton/sitemap.xml
+Sitemap: https://yip102011.github.io/my_blog/sitemap.xml
