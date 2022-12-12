@@ -7,4 +7,5 @@ postDate = false
 +++
 
 Hello, I am a software engineer working on backend development and devops.  
-Here is my [GitHub](https://github.com/gohugoio).
+Here is my [GitHub](https://github.com/gohugoio).  
+Here is my online [Resume](https://resume.isaacyip.com).
