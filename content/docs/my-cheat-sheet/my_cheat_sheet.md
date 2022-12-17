@@ -63,7 +63,7 @@ helm ls -A
 helm get values my-redis -n redis
 ```
 
-## Argocd
+## ArgoCD
 
 Ref: https://argo-cd.readthedocs.io/en/stable/user-guide/commands/argocd/
 
@@ -82,6 +82,13 @@ argocd app actions run "my-app" restart --kind Deployment
 
 # update password
 argocd account update-password --account admin
+
+# set app param
+kubectl patch Application --type=merge -n=argocd -p '{"spec":{"source":{"helm":{"parameters":[{"name":"replicaCount","value":"0"}]}}}}' my-app
+
+# set app param2
+kubectl exec deploy/argocd-server -n argocd -- bash -c "argocd login 127.0.0.1:8080 --insecure --username admin --password 'XXXXXX'"
+kubectl exec deploy/argocd-server -n argocd -- bash -c "argocd app set my-app -p replicaCount=0"
 ```
 
 ## Docker
