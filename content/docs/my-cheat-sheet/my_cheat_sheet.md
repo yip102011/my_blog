@@ -109,3 +109,13 @@ docker save -o "my-image.tar" "my-reg/my-image:latest"
 # docker load image file
 docker load --input "my-image.tar"
 ```
+
+## mongodb
+
+```bash
+# backup database to file
+mongodump --uri="mongodb://admin:XXXXXW@192.168.0.101:10001,192.168.0.102:10002,192.168.0.103:10003/?authSource=admin&replicaSet=my_replica_set&readPreference=primary" --out=mongodump/ --db=my_db
+
+# restore database from file
+mongorestore --uri="mongodb://admin:XXXXXW@192.168.0.101:10001,192.168.0.102:10002,192.168.0.103:10003/?authSource=admin&replicaSet=my_replica_set&readPreference=primary" --db=my_db mongodump/my_db
+```
