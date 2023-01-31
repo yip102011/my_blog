@@ -104,9 +104,9 @@ extendedKeyUsage        = critical, serverAuth
 subjectAltName          = @server_ext_san
 
 [server_ext_san]
-DNS = nginx.test.isaac.com
-DNS = localhost
-IP  = 127.0.0.1
+DNS.1 = nginx.test.isaac.com
+DNS.2 = localhost
+IP.1  = 127.0.0.1
 EOF
 
 # 生成私鑰
