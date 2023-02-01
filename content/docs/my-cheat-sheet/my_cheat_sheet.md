@@ -45,6 +45,20 @@ spec:
     app: my-app
   type: NodePort
 EOF
+
+# backup etcd data
+sudo ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \
+  --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+  --cert=/etc/kubernetes/pki/apiserver-etcd-client.crt \
+  --key=/etc/kubernetes/pki/apiserver-etcd-client.key \
+  snapshot save ~/etcd_backup
+  
+# view container log
+sudo docker logs -n 100 -f $(sudo docker ps -f name=k8s_kube-vip -q)
+sudo docker logs -n 100 -f $(sudo docker ps -f name=k8s_etcd -q)
+sudo docker logs -n 100 -f $(sudo docker ps -f name=k8s_kube-apiserver -q)
+sudo docker logs -n 100 -f $(sudo docker ps -f name=k8s_kube-scheduler -q)
+sudo docker logs -n 100 -f $(sudo docker ps -f name=k8s_kube-controller-manager -q)
 ```
 
 ## Helm
