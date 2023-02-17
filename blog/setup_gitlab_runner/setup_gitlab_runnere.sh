@@ -45,18 +45,27 @@ openssl s_client -showcerts -connect ${HARBOR_HOST}:${HARBOR_PORT} </dev/null 2>
 
 docker run --rm -v ${DEPLOY_FOLDER}/config:/etc/gitlab-runner/ docker.io/gitlab/gitlab-runner:v15.8.2 register \
   --non-interactive \
-  --tag-list="docker-dind-runner" \
-  --name="docker-dind-runner" \
+  --tag-list="dind-runner" \
+  --name="dind-runner" \
   --executor "docker" \
   --docker-image "docker:23" \
   --docker-tlsverify="false" \
-  --run-untagged="false" \
-  --docker-volumes=/var/run/docker.sock:/var/run/docker.sock \
-  --docker-volumes=/etc/docker/certs.d:/etc/docker/certs.d \
-  --url=${GITLAB_URL} \
-  --registration-token=${REGISTRATION_TOKEN}
+  --run-untagged="true" \
+  --custom_build_dir-enabled \
+  --builds-dir="/builds" \
+  --docker-volumes="/builds:/builds" \
+  --env='GIT_CLONE_PATH=$CI_BUILDS_DIR/$CI_CONCURRENT_ID/$CI_PROJECT_NAME' \
+  --cache-dir="/cache" \
+  --docker-volumes="/cache:/cache" \
+  --docker-volumes="/var/run/docker.sock:/var/run/docker.sock" \
+  --docker-volumes="/etc/docker/certs.d:/etc/docker/certs.d" \
+  --url="${GITLAB_URL}" \
+  --registration-token="${REGISTRATION_TOKEN}"
 
 docker wait register
+
+# update concurrent to 10
+sudo sed -i 's/concurrent.*/concurrent = 10/' ${DEPLOY_FOLDER}/config/config.toml
 
 echo "
 services:
