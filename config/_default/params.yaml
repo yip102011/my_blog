@@ -14,7 +14,7 @@ keywords: "kubernetes, software engineer, programmer, isaacyip, blog"
 
 # logo: images/logo.png # Logo image. Default to images/logo.webp.
 # logo: false # Disable Logo
-brand: "The Blogging of Isaac Yip"
+brand: "The Blogging of Isaac"
 
 palette: "cyan" # Default palette. Optional. You'll need to clear the browser cache after modifying this.
 # Available palettes. Default to ALL. Empty array means disable.
