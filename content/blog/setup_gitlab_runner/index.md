@@ -61,20 +61,32 @@ Keep watching if you don't want to use socket binding or shell executor and want
 
    ```bash
    sudo docker run --rm -v ${DEPLOY_FOLDER}/config:/etc/gitlab-runner/ docker.io/gitlab/gitlab-runner:v15.8.2 register \
-     --non-interactive \
-     --tag-list="docker-dind-runner" \
-     --name="docker-dind-runner" \
-     --executor "docker" \
-     --docker-image "docker:23" \
-     --docker-tlsverify="false" \
-     --run-untagged="false" \
-     --docker-volumes=/var/run/docker.sock:/var/run/docker.sock \
-     --docker-volumes=/etc/docker/certs.d:/etc/docker/certs.d \
-     --url=${GITLAB_URL} \
-     --registration-token=${REGISTRATION_TOKEN}
+    --non-interactive \
+    --tag-list="dind-runner" \
+    --name="dind-runner" \
+    --executor "docker" \
+    --docker-image "docker:23" \
+    --docker-tlsverify="false" \
+    --run-untagged="true" \
+    --custom_build_dir-enabled \
+    --builds-dir="/builds" \
+    --docker-volumes="/builds:/builds" \
+    --env='GIT_CLONE_PATH=$CI_BUILDS_DIR/$CI_CONCURRENT_ID/$CI_PROJECT_NAME' \
+    --cache-dir="/cache" \
+    --docker-volumes="/cache:/cache" \
+    --docker-volumes="/var/run/docker.sock:/var/run/docker.sock" \
+    --docker-volumes="/etc/docker/certs.d:/etc/docker/certs.d" \
+    --url="${GITLAB_URL}" \
+    --registration-token="${REGISTRATION_TOKEN}"
    ```
 
-5. create docker-compose file
+5. update concurrent to 10
+
+   ```bash
+   sudo sed -i 's/concurrent.*/concurrent = 10/' ${DEPLOY_FOLDER}/config/config.toml
+   ```
+
+6. create docker-compose file
 
    ```bash
    echo "
@@ -112,8 +124,8 @@ Keep watching if you don't want to use socket binding or shell executor and want
    " > ${DEPLOY_FOLDER}/docker-compose.yml
    ```
 
-6. start container `cd ${DEPLOY_FOLDER} && docker compose up -d --wait`
-7. view logs `docker compose logs -n 100 -f`
+7. start container `cd ${DEPLOY_FOLDER} && docker compose up -d --wait`
+8. view logs `docker compose logs -n 100 -f`
 
 you can download [single script file here]("/setup_gitlab_runnere.sh")
 
