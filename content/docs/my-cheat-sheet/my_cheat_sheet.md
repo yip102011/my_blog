@@ -122,6 +122,9 @@ docker save -o "my-image.tar" "my-reg/my-image:latest"
 
 # docker load image file
 docker load --input "my-image.tar"
+
+# rm all image that is not latest tag
+docker image rm $(docker images | awk 'NR!=1 && $2 !~ /<none>/ && $2 !~ /^latest$)/ {print $1":"$2}')
 ```
 
 ## mongodb

@@ -12,6 +12,19 @@ My linux cheat Sheet base on Ubuntu
 
 <!--more-->
 
+## awk
+
+```bash
+# skip first line, useful for skip colume name
+awk 'NR!=1 {print}'
+# filter when colume one not match regex pattern
+awk '$1 !~ /^some-regex-pattern$/ {print}')
+# print colume 1, 2 and added "|" in between
+awk '{print $1"|"$2}')
+# print with right padding space
+awk '{printf "%-20s %-20s\n",$1,$2}'
+```
+
 ## basic
 
 ```bash
