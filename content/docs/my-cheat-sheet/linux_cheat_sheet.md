@@ -174,6 +174,12 @@ find . -type d -exec mkdir -p "$LOG_ARCHIVED_FOLDER/{}" \;
 find . -type f -name '*.gz' -exec mv --backup "{}" "$LOG_ARCHIVED_FOLDER/{}" \;
 ```
 
+## skip sudo password
+
+```bash
+echo "$USER ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/$USER
+```
+
 ## reference
 
 - [The Linux Kernel](https://www.kernel.org/doc/html/latest/index.html)
