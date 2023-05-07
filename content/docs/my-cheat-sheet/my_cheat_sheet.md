@@ -59,6 +59,40 @@ sudo docker logs -n 100 -f $(sudo docker ps -f name=k8s_etcd -q)
 sudo docker logs -n 100 -f $(sudo docker ps -f name=k8s_kube-apiserver -q)
 sudo docker logs -n 100 -f $(sudo docker ps -f name=k8s_kube-scheduler -q)
 sudo docker logs -n 100 -f $(sudo docker ps -f name=k8s_kube-controller-manager -q)
+
+# create kubeconfig file
+NAMESPACE=default
+USER_NAME=my-user
+
+USER_TOKEN_NAME=$(kubectl get serviceaccount ${USER_NAME} -n ${NAMESPACE} -o=jsonpath='{.secrets[0].name}')
+USER_TOKEN_VALUE=$(kubectl get secret/${USER_TOKEN_NAME} -n ${NAMESPACE} -o=go-template='{{.data.token}}' | base64 --decode)
+CURRENT_CONTEXT=$(kubectl config current-context)
+CURRENT_CLUSTER=$(kubectl config view --raw -o=go-template='{{range .contexts}}{{if eq .name "'''${CURRENT_CONTEXT}'''"}}{{ index .context "cluster" }}{{end}}{{end}}')
+CLUSTER_CA=$(kubectl config view --raw -o=go-template='{{range .clusters}}{{if eq .name "'''${CURRENT_CLUSTER}'''"}}"{{with index .cluster "certificate-authority-data" }}{{.}}{{end}}"{{ end }}{{ end }}')
+CLUSTER_SERVER=$(kubectl config view --raw -o=go-template='{{range .clusters}}{{if eq .name "'''${CURRENT_CLUSTER}'''"}}{{ .cluster.server }}{{end}}{{ end }}')
+
+sudo tee ${USER_NAME}.kubeconfig <<EOF
+apiVersion: v1
+kind: Config
+current-context: ${CURRENT_CONTEXT}
+contexts:
+- name: ${CURRENT_CONTEXT}
+  context:
+    cluster: ${CURRENT_CONTEXT}
+    user: ${USER_NAME}
+    namespace: ${NAMESPACE}
+clusters:
+- name: ${CURRENT_CONTEXT}
+  cluster:
+    certificate-authority-data: ${CLUSTER_CA}
+    server: ${CLUSTER_SERVER}
+users:
+- name: ${USER_NAME}
+  user:
+    token: ${USER_TOKEN_VALUE}
+EOF
+
+kubectl get pods -n ${NAMESPACE} --kubeconfig=${USER_NAME}.kubeconfig
 ```
 
 ## Helm
